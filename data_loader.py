@@ -2,7 +2,8 @@ import logging
 from os import listdir
 from os.path import splitext
 from pathlib import Path
-
+from osgeo import gdal
+from skimage.transform import resize
 import numpy as np
 import torch
 from PIL import Image
@@ -46,6 +47,26 @@ class BasicDataset(Dataset):
             img_ndarray = img_ndarray / 255
 
         return img_ndarray
+
+    @classmethod
+    def preprocesstiff(cls, ds, scale, is_mask):
+        count = ds.RasterCount
+        band = ds.GetRasterBand(count)
+        arr = band.ReadAsArray()
+        w, h = arr.shape
+        new_w, new_h = int(scale * w), int(scale * h)
+        assert new_w > 0 and new_h > 0, '[WARNING] Scale is too small, resized images would have no pixel'
+        img_ndarray = resize(arr, (new_w, new_h), preserve_range=True)
+        
+        if img_ndarray.ndim == 2 and not is_mask:
+            img_ndarray = img_ndarray[np.newaxis, ...]
+        elif not is_mask:
+            img_ndarray = img_ndarray.transpose((2, 0, 1))
+
+        if not is_mask:
+            img_ndarray = img_ndarray / 255
+
+        return img_ndarray
         
     @classmethod
     def load(cls, filename):
@@ -54,6 +75,8 @@ class BasicDataset(Dataset):
             return Image.fromarray(np.load(filename))
         elif ext in ['.pt', '.pth']:
             return Image.fromarray(torch.load(filename).numpy())
+        elif ext in ['.tif','.tiff']:
+            return gdal.Open(filename,gdal.GA_ReadOnly)
         else:
             return Image.open(filename)
     
@@ -62,17 +85,32 @@ class BasicDataset(Dataset):
         name = self.ids[idx]
         mask_file = list(self.mask_dir.glob(name + self.mask_suffix + '.*'))
         img_file = list(self.img_dir.glob(name + '.*'))
+        logging.info(mask_file)
 
         assert len(mask_file) == 1, f'Either no mask or multiple masks found for the ID {name}: {mask_file}'
         assert len(img_file) == 1, f'Either no image or multiple images found for the ID {name}: {img_file}'
         mask = self.load(mask_file[0])
         img = self.load(img_file[0])
 
-        assert img.size == mask.size, \
-            '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
+        # assert img.size == mask.size, \
+        #     '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
 
-        img = self.preprocess(img, self.scale, is_mask=False)
-        mask = self.preprocess(mask, self.scale, is_mask=True)
+        # img = self.preprocess(img, self.scale, is_mask=False)
+        # mask = self.preprocess(mask, self.scale, is_mask=True)
+        
+        try:
+            assert img.GetRasterBand(1).ReadAsArray().shape == mask.size, \
+                '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
+            img = self.preprocess(img, self.scale, is_mask=False)
+            mask = self.preprocess(mask, self.scale, is_mask=True)
+        except Exception as e:
+            assert img.GetRasterBand(1).ReadAsArray().shape == mask.GetRasterBand(1).ReadAsArray().shape, \
+                '[WARNING] Image and mask {name} ' \
+                    + f'should be the same size, but are {img.GetRasterBand(1).ReadAsArray().shape} ' \
+                        + f'and {mask.GetRasterBand(1).ReadAsArray().shape}'
+            img = self.preprocesstiff(img, self.scale, is_mask=False)
+            mask = self.preprocesstiff(mask, self.scale, is_mask=True)
+            print(e)
 
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
