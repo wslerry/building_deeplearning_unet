@@ -1,0 +1,110 @@
+{
+  "Framework" : "e.g. TensorFlow or PyTorch",
+  "ModelConfiguration" : "e.g. UNet or FasterRCNN",
+  "ModelType" : "e.g. ObjectDetection or ImageClassification",
+  "ModelFile" : "e.g. ./trained.model",
+  "Description" : "e.g. which data model was trained on, when, by whom, mAP, etc",
+  "ImageHeight" : 512,
+  "ImageWidth" : 512,
+  "ExtractBands" : "e.g. [0, 1, 2]",
+  "DataRange" : "e.g. [0.1, 1.0] (optional)",
+  "ModelPadding" : "e.g. 64 (optional)",
+  "BatchSize" : "e.g. 8 (optional)",
+  "PerProcessGPUMemoryFraction" : "e.g. 0.8 (optional)",
+  "MetaDataMode" : "Classified_Tiles",
+  "BlackenAroundFeature" : false,
+  "CropTileMode" : "Fixed_Size",
+  "ImageSpaceUsed" : "MAP_SPACE",
+  "MinCellSize" : {
+    "x" : 0.5,
+    "y" : 0.5,
+    "spatialReference" : {
+      "wkid" : 29874,
+      "latestWkid" : 29874
+    }
+  },
+  "MaxCellSize" : {
+    "x" : 0.5,
+    "y" : 0.5,
+    "spatialReference" : {
+      "wkid" : 29874,
+      "latestWkid" : 29874
+    }
+  },
+  "Classes" : [
+    {
+      "Value" : 0,
+      "Name" : "0",
+      "Color" : [
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "Value" : 1,
+      "Name" : "1",
+      "Color" : [
+        -1,
+        -1,
+        -1
+      ]
+    }
+  ],
+  "InputRastersProps" : {
+    "RasterCount" : 2,
+    "SensorName" : "Undefined",
+    "BandNames" : [
+      "Band_1",
+      "Band_2",
+      "Band_3"
+    ]
+  },
+  "AllTilesStats" : [
+    {
+      "BandName" : "Band_1",
+      "Min" : 0,
+      "Max" : 255,
+      "Mean" : 121.03691400800415,
+      "StdDev" : 41.494282807537139
+    },
+    {
+      "BandName" : "Band_2",
+      "Min" : 0,
+      "Max" : 255,
+      "Mean" : 134.3784517560683,
+      "StdDev" : 34.847090532583628
+    },
+    {
+      "BandName" : "Band_3",
+      "Min" : 0,
+      "Max" : 255,
+      "Mean" : 80.26349694388233,
+      "StdDev" : 35.87392553020964
+    }
+  ],
+  "WellKnownBandNames (FYI, these band names can be used in ExtractBands)" : [
+    "Red",
+    "Green",
+    "Blue",
+    "Infrared",
+    "CoastalBlue",
+    "Yellow",
+    "RedEdge",
+    "ShortWaveInfrared",
+    "NearInfrared",
+    "NearInfrared_1",
+    "NearInfrared_2",
+    "MidInfrared",
+    "MidInfrared_1",
+    "MidInfrared_2",
+    "Thermal",
+    "Thermal_1",
+    "Thermal_2",
+    "Panchromatic",
+    "PseudoRed",
+    "PseudoGreen",
+    "PseudoBlue",
+    "QA"
+  ]
+}
