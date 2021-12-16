@@ -234,7 +234,7 @@ if __name__ == '__main__':
     net.to(device=device)
     try:
         train_net(net=net, 
-                  dir_img=args.image,
+                  dir_img=args.images,
                   dir_mask =args.masks, 
                   dir_checkpoint=args.save,
                   epochs=args.epochs,
