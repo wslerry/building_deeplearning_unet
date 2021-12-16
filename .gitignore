@@ -1,6 +1,7 @@
 __pycache__/
 ./checkpoints/*
 ./runs/events*
+runs
 *.ipynb 
 *.pth
 *.onnx
