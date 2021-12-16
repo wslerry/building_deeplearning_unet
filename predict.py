@@ -11,6 +11,7 @@ from torchvision import transforms
 from unet import UNet
 from torch_utils import plot_img_and_mask
 from data_loader import BasicDataset
+from torch_utils import select_device
 
 
 def predict_img(net,
@@ -20,7 +21,8 @@ def predict_img(net,
                 out_threshold=0.5):
     net.eval()
 
-    img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
+    # img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
+    img = torch.from_numpy(BasicDataset(full_img, scale_factor,  is_mask=False))
 
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
@@ -106,8 +108,9 @@ if __name__ == "__main__":
 
     logging.info("Loading model {}".format(args.model))
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logging.info(f'Using device {device}')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = select_device(device='cpu' if torch.cuda.is_available() is False else 'cuda:0')
+
     net.to(device=device)
     net.load_state_dict(torch.load(args.model, map_location=device))
 
