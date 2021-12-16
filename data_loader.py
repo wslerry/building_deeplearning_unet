@@ -92,25 +92,25 @@ class BasicDataset(Dataset):
         mask = self.load(mask_file[0])
         img = self.load(img_file[0])
 
-        # assert img.size == mask.size, \
-        #     '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
+        assert img.size == mask.size, \
+            '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
 
-        # img = self.preprocess(img, self.scale, is_mask=False)
-        # mask = self.preprocess(mask, self.scale, is_mask=True)
+        img = self.preprocess(img, self.scale, is_mask=False)
+        mask = self.preprocess(mask, self.scale, is_mask=True)
         
-        try:
-            assert img.GetRasterBand(1).ReadAsArray().shape == mask.size, \
-                '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
-            img = self.preprocess(img, self.scale, is_mask=False)
-            mask = self.preprocess(mask, self.scale, is_mask=True)
-        except Exception as e:
-            assert img.GetRasterBand(1).ReadAsArray().shape == mask.GetRasterBand(1).ReadAsArray().shape, \
-                '[WARNING] Image and mask {name} ' \
-                    + f'should be the same size, but are {img.GetRasterBand(1).ReadAsArray().shape} ' \
-                        + f'and {mask.GetRasterBand(1).ReadAsArray().shape}'
-            img = self.preprocesstiff(img, self.scale, is_mask=False)
-            mask = self.preprocesstiff(mask, self.scale, is_mask=True)
-            print(e)
+        # try:
+        #     assert img.GetRasterBand(1).ReadAsArray().shape == mask.size, \
+        #         '[WARNING] Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
+        #     img = self.preprocess(img, self.scale, is_mask=False)
+        #     mask = self.preprocess(mask, self.scale, is_mask=True)
+        # except Exception as e:
+        #     assert img.GetRasterBand(1).ReadAsArray().shape == mask.GetRasterBand(1).ReadAsArray().shape, \
+        #         '[WARNING] Image and mask {name} ' \
+        #             + f'should be the same size, but are {img.GetRasterBand(1).ReadAsArray().shape} ' \
+        #                 + f'and {mask.GetRasterBand(1).ReadAsArray().shape}'
+        #     img = self.preprocesstiff(img, self.scale, is_mask=False)
+        #     mask = self.preprocesstiff(mask, self.scale, is_mask=True)
+        #     print(e)
 
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
