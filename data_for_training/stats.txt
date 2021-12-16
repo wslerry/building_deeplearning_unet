@@ -1,6 +1,0 @@
-images = 84 *3*512*512
-classes = 2
-classes per image = [min = 1, mean = 1.90, max = 2]
-cls name              cls value     images   pixels      min size   mean size    max size
-0                             0         84   20867334   177980.00   248420.64   262144.00
-1                             1         76    1152762        0.00    13723.36    84164.00
