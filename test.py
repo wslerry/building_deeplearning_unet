@@ -114,10 +114,11 @@ def train_net(net,
                 #                        multiclass=True)
                 
                 masks_pred = net(images)
-                loss = criterion(masks_pred, true_masks) \
-                    + dice_loss(F.softmax(masks_pred, dim=1).float(),
-                                F.one_hot(true_masks, net.n_classes).permute(0, 3, 1, 2).float(),
-                                multiclass=True)
+                # loss = criterion(masks_pred, true_masks) \
+                #     + dice_loss(F.softmax(masks_pred, dim=1).float(),
+                #                 F.one_hot(true_masks, net.n_classes).permute(0, 3, 1, 2).float(),
+                #                 multiclass=True)
+                loss = criterion(masks_pred, true_masks)
                 epoch_loss += loss.item()
                 writer.add_scalar('Loss/train', loss.item(), global_step)
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
@@ -137,22 +138,14 @@ def train_net(net,
                 division_step = (n_train // (10 * batch_size))
                 if division_step > 0:
                     if global_step % division_step == 0:
-                        
                         for tag, value in net.named_parameters():
                             tag = tag.replace('.', '/')
                             writer.add_histogram('weights/' + tag, value.data.cpu().numpy(), global_step)
                             writer.add_histogram('grads/' + tag, value.grad.data.cpu().numpy(), global_step)
-                        
-                        # histograms = {}
-                        # for tag, value in net.named_parameters():
-                        #     tag = tag.replace('/', '.')
-                        #     histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                        #     histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
-
                         val_score = evaluate(net, val_loader, device)
                         scheduler.step(val_score)
                         writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], global_step)
-                        
+
                         if net.n_classes > 1:
                             logging.info('Validation cross entropy: {}'.format(val_score))
                             writer.add_scalar('Loss/test', val_score, global_step)
@@ -165,19 +158,7 @@ def train_net(net,
                             writer.add_images('masks/true', true_masks, global_step)
                             writer.add_images('masks/pred', torch.sigmoid(masks_pred) > 0.5, global_step)
                         
-                        # experiment.log({
-                        #     'learning rate': optimizer.param_groups[0]['lr'],
-                        #     'validation Dice': val_score,
-                        #     'images': wandb.Image(images[0].cpu()),
-                        #     'masks': {
-                        #         'true': wandb.Image(true_masks[0].float().cpu()),
-                        #         'pred': wandb.Image(torch.softmax(masks_pred, dim=1).argmax(dim=1)[0].float().cpu()),
-                        #     },
-                        #     'step': global_step,
-                        #     'epoch': epoch,
-                        #     **histograms
-                        # })
-
+                        
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
             torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch + 1)))
