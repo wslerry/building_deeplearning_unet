@@ -19,9 +19,9 @@ from evaluate import evaluate
 from unet import UNet
 from torch_utils import select_device
 
-dir_img = Path('./data_for_training2/images/')
-dir_mask = Path('./data_for_training2/labels/')
-dir_checkpoint = Path('./checkpoints/')
+# dir_img = Path('./data_for_training2/images/')
+# dir_mask = Path('./data_for_training2/labels/')
+# dir_checkpoint = Path('./checkpoints/')
 
 
 def train_net(net, 
@@ -37,6 +37,11 @@ def train_net(net,
               img_scale: float = 0.5
               ):
     # 1. Create dataset
+    
+    dir_img = Path(dir_img)
+    dir_mask = Path(dir_mask)
+    dir_checkpoint = Path(dir_checkpoint)
+    
     try:
         dataset = RemoteSensingDataset(dir_img, dir_mask, img_scale)
     except (AssertionError, RuntimeError):
@@ -183,11 +188,11 @@ def train_net(net,
 
 def get_args():
     parser = argparse.ArgumentParser(description='[INFO] Train the UNet on images and target masks')
-    parser.add_argument('-i','--images',type=str,default=None,required=True,
+    parser.add_argument('-i','--images',type=str,default='./data_for_training2/images/',
                         help='Directory to images')
-    parser.add_argument('-m','--masks',type=str,default=None,required=True,
+    parser.add_argument('-m','--masks',type=str,default='./data_for_training2/labels/',
                         help='Directory to masks')
-    parser.add_argument('-s','--save',type=str,default='./checkpoints/',
+    parser.add_argument('--save',type=str,default='./checkpoints/',
                         help='Directory to save model checkpoints')
     parser.add_argument('--epochs', '-e', metavar='E', type=int, default=5, 
                         help='Number of epochs')
