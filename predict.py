@@ -10,7 +10,7 @@ from torchvision import transforms
 
 from unet import UNet
 from torch_utils import plot_img_and_mask
-from data_loader import BasicDataset
+from data_loader import BasicDataset, RemoteSensingDataset
 from torch_utils import select_device
 
 
@@ -22,7 +22,7 @@ def predict_img(net,
     net.eval()
 
     # img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
-    img = torch.from_numpy(BasicDataset(full_img, scale_factor,  is_mask=False))
+    img = torch.from_numpy(RemoteSensingDataset.preprocess(full_img, scale_factor,is_mask=False))
 
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
